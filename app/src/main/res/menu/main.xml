@@ -5,7 +5,12 @@
 
     <item
         android:id="@+id/toolbar_action_update"
-        android:title="使用说明"
+        android:title="更新日志"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/toolbar_action_github"
+        android:title="访问GITHUB"
         app:showAsAction="never"/>
 
     <item

@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lhy.xfif">
 
+    <!--<uses-permission android:name="android.permission.INTERNET" />-->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -18,7 +21,7 @@
             android:value="任意修改“FIF口语训练学生版”的上传的分数" />
         <meta-data
             android:name="xposedminversion"
-            android:value="53" />
+            android:value="54" />
 
         <activity android:name=".MainActivity">
             <intent-filter>

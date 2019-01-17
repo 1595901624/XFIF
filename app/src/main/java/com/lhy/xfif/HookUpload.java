@@ -36,7 +36,8 @@ public class HookUpload implements IXposedHookLoadPackage {
                     "getOrigApplicationContext", Context.class, new XC_MethodHook() {
                         @Override
                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-//                            XposedBridge.log("Hook!" + configPreferences.getDefaultConfig().getScore() + "-------");
+//                            XposedBridge.log("Hook StubApp!" + configPreferences.getDefaultConfig().getScore() + "-------");
+//                            System.err.println("Hook StubApp!" + configPreferences.getDefaultConfig().getScore() + "-------");
                         }
 
                         @Override
@@ -47,17 +48,19 @@ public class HookUpload implements IXposedHookLoadPackage {
                              */
                             final Context context = (Context) param.args[0];
                             ClassLoader classLoader = context.getClassLoader();
-//                            XposedBridge.log("AfterHook!" + classLoader.toString());
+//                            XposedBridge.log("AfterHook StubApp!" + classLoader.toString());
+//                            System.err.println("AfterHook StubApp!" + classLoader.toString());
 
                             /**
                              * Hook com.fifedu.tsdx.ui.activity.report.challengereport.Report中的uploadAnsByCode方法
                              * 上传时截取questionList，修改分数
                              */
+                            //com.fifedu.tsdx.ui.activity.MainActivity initData 测试
                             XposedHelpers.findAndHookMethod("com.fifedu.tsdx.ui.activity.report.challengereport.Report",
                                     classLoader, "uploadAnsByCode", String.class, new XC_MethodHook() {
                                         @Override
                                         protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
-
+//                                            XposedBridge.log("Hood initData Success!!");
                                             if (configPreferences.getDefaultConfig().isOpen()) {
                                                 Field questionList = param.thisObject.getClass().getDeclaredField("questionList");
                                                 questionList.setAccessible(true);
@@ -73,7 +76,7 @@ public class HookUpload implements IXposedHookLoadPackage {
                                                      */
                                                     scoreField.set(list.get(i), configPreferences.getDefaultConfig().getScore());
                                                 }
-                                                //将list赋值给Activity中的list
+//                                                将list赋值给Activity中的list
                                                 questionList.set(param.thisObject, list);
                                             } else {
                                                 //不做任何事情

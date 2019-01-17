@@ -1,12 +1,15 @@
 package com.lhy.xfif;
 
 import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SwitchCompat;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,12 +19,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 
-import me.weyye.hipermission.HiPermission;
-import me.weyye.hipermission.PermissionCallback;
-import me.weyye.hipermission.PermissionItem;
+import io.reactivex.functions.Consumer;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,17 +38,21 @@ public class MainActivity extends AppCompatActivity {
     private Config config;
     private ConfigPreferences configPreferences;
 
+    //RxPermissions
+    private final RxPermissions rxPermissions = new RxPermissions(this);
+    private final static String TAG = "MAIN_ACTIVITY";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //ANDROID 6.0以上申请权限
+        initPermissions();
         //初始化视图
         intiView();
         //初始化配置文件
         configPreferences = ConfigPreferences.getInstance();
         config = configPreferences.getDefaultConfig();
-        //ANDROID 6.0以上申请权限
-        requestCurrentPermissions();
 
         //获取状态
         isOpen = config.isOpen();
@@ -92,32 +97,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * 申请读写内存卡权限
      */
-    private void requestCurrentPermissions() {
-        //申请权限
-        List<PermissionItem> permissionItemList = new ArrayList<>();
-        permissionItemList.add(new PermissionItem(Manifest.permission.READ_EXTERNAL_STORAGE, "读取内存卡", R.drawable.permission_ic_storage));
-        permissionItemList.add(new PermissionItem(Manifest.permission.WRITE_EXTERNAL_STORAGE, "写入内存卡", R.drawable.permission_ic_storage));
-        HiPermission.create(this)
-                .permissions(permissionItemList)
-                .checkMutiPermission(new PermissionCallback() {
+    private void initPermissions() {
+        rxPermissions
+                .requestEach(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .subscribe(new Consumer<Permission>() {
                     @Override
-                    public void onClose() {
-
-                    }
-
-                    @Override
-                    public void onFinish() {
-
-                    }
-
-                    @Override
-                    public void onDeny(String permission, int position) {
-
-                    }
-
-                    @Override
-                    public void onGuarantee(String permission, int position) {
-
+                    public void accept(Permission permission) throws Exception {
+                        if (permission.granted) {
+                            // 用户已经同意该权限
+                            Log.d(TAG, permission.name + " is granted.");
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            // 用户拒绝了该权限，没有选中『不再询问』（Never ask again）,那么下次再次启动时，还会提示请求权限的对话框
+                            Log.d(TAG, permission.name + " is denied. More info should be provided.");
+                        } else {
+                            // 用户拒绝了该权限，并且选中『不再询问』
+                            Log.d(TAG, permission.name + " is denied.");
+                        }
                     }
                 });
 
@@ -168,6 +163,11 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.toolbar_action_update:
                 dialog("更新日志", getString(R.string.update_log));
+                return true;
+            case R.id.toolbar_action_github:
+                Uri uri = Uri.parse("https://github.com/1595901624/XFIF");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
                 return true;
             case R.id.toolbar_action_about:
                 dialog("关于", getString(R.string.about));
